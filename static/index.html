@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Keychain - 3D钥匙扣生成器</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel: Design Input -->
+        <div class="panel left-panel">
+            <div class="panel-header">
+                <span class="emoji">🎨</span>
+                <h2>Design Input</h2>
+            </div>
+            
+            <div class="section">
+                <label class="section-label">Upload Image (optional)</label>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.webp" style="display: none;">
+                    <button class="choose-file-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose File
+                    </button>
+                    <span id="fileName">No file chosen</span>
+                </div>
+                <div class="image-preview" id="imagePreview">
+                    <p class="no-image-text">No image uploaded</p>
+                    <img id="previewImg" style="display: none; max-width: 100%; max-height: 200px;">
+                </div>
+            </div>
+
+            <div class="section">
+                <label class="section-label">Prompt</label>
+                <textarea 
+                    id="promptInput" 
+                    class="prompt-textarea" 
+                    placeholder="Example: A mechanical gear with 20 teeth, 50mm diameter"
+                ></textarea>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">
+                ✨ Generate Model
+            </button>
+
+            <div class="section">
+                <div class="panel-header">
+                    <span class="emoji">🎨</span>
+                    <h3>CAD Visualization</h3>
+                </div>
+                <div class="cad-preview" id="cadPreview">
+                    <p class="preview-placeholder">Model preview will appear here</p>
+                    <img id="modelPreview" style="display: none; max-width: 100%;">
+                </div>
+                
+                <div class="download-buttons">
+                    <button class="download-btn stl-btn" id="downloadStl" disabled>
+                        📦 STL
+                    </button>
+                    <button class="download-btn obj-btn" id="downloadObj" disabled>
+                        🔴 OBJ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        
+        <!-- Right Panel: AI Refinement Chat -->
+        <div class="panel right-panel">
+            <div class="panel-header">
+                <span class="emoji">💬</span>
+                <h2>AI Refinement Chat</h2>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-message ai-message">
+                    <p>Hi! I can modify your model — try "Add a hole in the center".</p>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <textarea 
+                    id="refinementInput" 
+                    class="refinement-textarea" 
+                    placeholder="Type your modification..."
+                ></textarea>
+                <button class="refine-btn" id="refineBtn">
+                    ✨ Refine
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="silhouetteEditor" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>✏️ Edit Silhouette</h2>
+                        <button class="close-btn" onclick="closeSilhouetteEditor()">&times;</button>
+                    </div>
+                    
+                    <div class="editor-container">
+                        <div class="editor-tools">
+                            <h3>Drawing Tools</h3>
+                            
+                            <div class="tool-group">
+                                <button id="penTool" class="tool-btn active" onclick="selectTool('pen')">
+                                    ✏️ Draw (White)
+                                </button>
+                                <button id="eraserTool" class="tool-btn" onclick="selectTool('eraser')">
+                                    🧹 Erase (Black)
+                                </button>
+                            </div>
+                            
+                            <div class="tool-group">
+                                <label>Brush Size: <span id="brushSizeLabel">15</span>px</label>
+                                <input type="range" id="brushSize" min="1" max="100" value="15" 
+                                    oninput="updateBrushSize(this.value)">
+                            </div>
+                            
+                            <div class="tool-group">
+                                <button class="tool-btn" onclick="undoEdit()">
+                                    ↶ Undo
+                                </button>
+                                <button class="tool-btn" onclick="resetToOriginal()">
+                                    🔄 Reset
+                                </button>
+                                <button class="tool-btn" onclick="clearCanvas()">
+                                    🗑️ Clear All
+                                </button>
+                            </div>
+                                            <div class="tool-group">
+                                <label>AI Instructions (Optional)</label>
+                                <textarea id="editInstructions" 
+                                        placeholder="e.g., 'Make edges smoother', 'Add more detail'..." 
+                                        rows="3"></textarea>
+                                <small style="color: #999; display: block; margin-top: 5px;">
+                                    AI will further refine your manual edits
+                                </small>
+                            </div>
+                            
+                            <div class="tool-group">
+                                <button class="btn-save" onclick="saveEditedSilhouette()">
+                                    💾 Save & Apply
+                                </button>
+                                <button class="btn-cancel" onclick="closeSilhouetteEditor()">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="canvas-wrapper">
+                            <div class="canvas-info">
+                                <span id="canvasInfo">Click and drag to draw</span>
+                            </div>
+                            <canvas id="editCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Processing...</p>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
