@@ -4,3 +4,5 @@ uvicorn
 python-multipart
 openai
 numpy-stl
+pillow
+opencv-python
